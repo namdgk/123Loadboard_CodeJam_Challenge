@@ -1,33 +1,25 @@
-const all_trips = require("./Assets/123Loadboard_CodeJam_2022_dataset.json"); //the huge json file
-const all_truckers = require("./Assets/123Loadboard_CodeJam_2022_input_sample_s300.json"); //7 samples
+import all_trips from "./Assets/123Loadboard_CodeJam_2022_dataset.json"; //the huge json file
+import all_truckers from "./Assets/123Loadboard_CodeJam_2022_input_sample_s300.json"; //7 samples
 
 console.log("-------------------------------------");
-console.log(all_trips[0]);
+// console.log(all_trips[0]);
 console.log("-------------------------------------");
 
 //All distances are in miles
 //All trucks have a fixed speed of 55 mph
 //Fixed fuel cost per gallon is $0.40/mile
 
-//JSON dataset
-// [
-//     {
-//         "load_id":434307296,          // unique id. A number from 1 to 9 digits
-//         "origin_city":"TAMPA",        // origin (A) city name
-//         "origin_state":"FL",          // origin (A) state/province 2 letter code
-//         "origin_latitude":27.961307,  // origin (A) latitude coordinate
-//         "origin_longitude":-82.44929999999998,// origin (A) longitude coordinate
-//         "destination_city":"ORLANDO",      // destination (B) city name
-//         "destination_state":"FL",          // destination (B) state/province 2 letter code
-//         "destination_latitude":28.546289,  // destination (B) latitude coordinate
-//         "destination_longitude":-81.37826099999998,// dest (B) longitude coordinate
-//         "amount":291,                            // amount of money paid for the shipment
-//         "pickup_date_time":"2022-03-04 13:00:00" // pickup date. truck cannot be late.
-//     },
-//     ...
-// ]
-
 let result = addResult(101, [434307296, 401121]);
+//-------------------------------------
+createResult();
+
+function createResult() {
+  var fs = require("fs");
+  fs.writeFile("test.js", console.log("hi"), function (err) {
+    console.log("Done");
+  });
+}
+//-------------------------------------
 
 function addResult(inputTripId, loadIds) {
   return {
@@ -39,7 +31,7 @@ function addResult(inputTripId, loadIds) {
 function get_next_trips(origin_latitude, origin_longitude, end_time) {
   // possible trips to be returned
   var possible_trips = [];
-  for (let i = 0; i < all_trips.length; i++) {
+  for (let i = 0; i < length; i++) {
     // check if the trip can be made in time
     if (is_before(all_trips[i].pickup_date_time, end_time)) {
       // travel time is in hours
@@ -63,7 +55,11 @@ function get_next_trips(origin_latitude, origin_longitude, end_time) {
   }
 }
 // TODO: function to compute the finish time of a starting time and the hours elapsed
-function add_hours_to_time(starting_time, hours) {}
+function add_hours_to_time(starting_time, hours) {
+  var moment = require("moment"); // require
+  let a = starting_time.add(hours, "h");
+  console.log(a);
+}
 
 // TODO: returns true if time1 is before or equal to time2
 function is_before(time1, time2) {}
