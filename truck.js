@@ -26,3 +26,12 @@ console.log("-------------------------------------");
 //     },
 //     ...
 // ]
+
+let result = addResult(101, [434307296, 401121]);
+
+function addResult(inputTripId, loadIds) {
+  return {
+    input_trip_id: inputTripId,
+    load_ids: loadIds,
+  };
+}
