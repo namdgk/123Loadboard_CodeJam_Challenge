@@ -17,32 +17,32 @@ const all_truckers = JSON.parse(
   )
 );
 
-function isBeforeBetter(time1, time2) {
-  let year1 = parseInt(time1.slice(0, 4));
-  let year2 = parseInt(time2.slice(0, 4));
-  let month1 = parseInt(time1.slice(6, 8));
-  let month2 = parseInt(time2.slice(6, 8));
-  let day1 = parseInt(time1.slice(9, 11));
-  let day2 = parseInt(time2.slice(9, 11));
-  let hour1 = parseInt(time1.slice(11, 13));
-  let hour2 = parseInt(time2.slice(11, 13));
-  let min1 = parseInt(time1.slice(14, 16));
-  let min2 = parseInt(time2.slice(14, 16));
-  let sec1 = parseInt(time1.slice(17, 19));
-  let sec2 = parseInt(time2.slice(17, 19));
-  if (
-    year1 == year2 &&
-    month1 == month2 &&
-    day1 == day2 &&
-    hour1 == hour2 &&
-    min1 == min2 &&
-    sec1 == sec2
-  ) {
-    return true;
-  } else {
-    return moment(time1).isBefore(time2, "second");
-  }
-}
+// function is_before(time1, time2) {
+//   let year1 = parseInt(time1.slice(0, 4));
+//   let year2 = parseInt(time2.slice(0, 4));
+//   let month1 = parseInt(time1.slice(6, 8));
+//   let month2 = parseInt(time2.slice(6, 8));
+//   let day1 = parseInt(time1.slice(9, 11));
+//   let day2 = parseInt(time2.slice(9, 11));
+//   let hour1 = parseInt(time1.slice(11, 13));
+//   let hour2 = parseInt(time2.slice(11, 13));
+//   let min1 = parseInt(time1.slice(14, 16));
+//   let min2 = parseInt(time2.slice(14, 16));
+//   let sec1 = parseInt(time1.slice(17, 19));
+//   let sec2 = parseInt(time2.slice(17, 19));
+//   if (
+//     year1 == year2 &&
+//     month1 == month2 &&
+//     day1 == day2 &&
+//     hour1 == hour2 &&
+//     min1 == min2 &&
+//     sec1 == sec2
+//   ) {
+//     return true;
+//   } else {
+//     return moment(time1).isBefore(time2, "second");
+//   }
+// }
 
 //All distances are in miles
 //All trucks have a fixed speed of 55 mph
@@ -81,25 +81,24 @@ function preprocess_trips(trucker_index) {
   // find the best 10 trips from all the possible trips
   let best_10 = [];
   for (let j = 0; j < 10; j++) {
-    best_10.push(Number.MIN_VALUE);
+    best_10.push([Number.MIN_VALUE, null]);
   }
-
   for (let i = 0; i < all_possible_trips.length; i++) {
     let revenue = get_revenue(
       curr_trucker.start_latitude,
       curr_trucker.start_longitude,
       all_possible_trips[i]
     );
-    if (revenue > best_10[0]) {
-      best_10[0] = revenue;
+    if (revenue > best_10[0][0]) {
+      best_10[0][0] = revenue;
+      best_10[0][1] = all_possible_trips[i];
       best_10.sort();
     }
   }
   return best_10;
 }
 
-// TODO: returns the profit-cost of a potential trip
-//Fixed fuel cost per gallon is $0.40/mile
+// returns the profit-cost of a potential trip
 function get_revenue(starting_lat, starting_long, trip) {
   // cost to go from the starting point to the origin
   let distance1 = get_distance(
@@ -120,7 +119,6 @@ function get_revenue(starting_lat, starting_long, trip) {
   //Amount made from the trip - the two costs above
   let totalCost = cost1 + cost2;
   let revenue = trip.amount - totalCost;
-  console.log(revenue);
   return revenue;
 }
 
@@ -141,8 +139,8 @@ function get_next_trips(
   for (let i = 0; i < all_trips.length; i++) {
     // check if the trip can be made in time
     if (
-      is_before(current_time, all_trips[i].pickup_date_time) &&
-      is_before(all_trips[i].pickup_date_time, trucker_end_time)
+      is_before_worse(current_time, all_trips[i].pickup_date_time) &&
+      is_before_worse(all_trips[i].pickup_date_time, trucker_end_time)
     ) {
       // travel time is in hours
       let travel_to_pickup_time =
@@ -173,8 +171,11 @@ function get_next_trips(
       );
       // check if the trip can end before the trucker's max_destination_time
       if (
-        is_before(arrival_to_pickup_time, all_trips[i].pickup_date_time) &&
-        is_before(trip_end_time, trip_end_time)
+        is_before_worse(
+          arrival_to_pickup_time,
+          all_trips[i].pickup_date_time
+        ) &&
+        is_before_worse(trip_end_time, trip_end_time)
       ) {
         // add trip to possible_trips array
         possible_trips.push(all_trips[i]);
@@ -190,7 +191,7 @@ function add_hours_to_time(starting_time, hours) {
 }
 
 // returns true if time1 is before or equal to time2
-function is_before(time1, time2) {
+function is_before_worse(time1, time2) {
   //two formats
   //"2022-03-04 13:00:00"
   //"2022-03-02T19:00:00.000Z"
@@ -268,7 +269,65 @@ function get_distance(lat1, lon1, lat2, lon2) {
 
 // takes in an index of the request array, returns the best trip ID's within constrains
 function get_best_session(index) {
+  // initialize an array with all possible routes
   // get best 10 trips as a starting point
   let best_10_trips = preprocess_trips(index);
+  // [ [rev1, trip1], [rev2, trip2], ... , [rev10, trip10], ]
+  for (let i = 0; i < 10; i++) {
+    console.log("--------- TRIP " + i + "--------------------");
+    let curr_trip = best_10_trips[i][1];
+    console.log(curr_trip);
+    let best_x = [];
+    let best_10 = [];
+    let travel_time =
+      1609.34 *
+      55 *
+      get_distance(
+        curr_trip.origin_latitude,
+        curr_trip.origin_longitude,
+        curr_trip.destination_latitude,
+        curr_trip.destination_longitude
+      );
+    let next_possible_trips = get_next_trips(
+      curr_trip.destination_latitude,
+      curr_trip.destination_longitude,
+      add_hours_to_time(curr_trip.pickup_date_time, travel_time),
+      all_truckers[index].max_destination_time
+    );
+    if (next_possible_trips.length > 10) {
+      console.log("next trips");
+      console.log(next_possible_trips.length);
+      console.log("-----------------------------------");
+      // find the most profitable 10 next trips
+      for (let j = 0; j < 10; j++) {
+        best_10.push([Number.MIN_VALUE, null]);
+      }
+      for (let j = 0; j < next_possible_trips.length; j++) {
+        let revenue = get_revenue(
+          curr_trip.destination_latitude,
+          curr_trip.destination_longitude,
+          next_possible_trips[j]
+        );
+        if (revenue > best_10[0][0]) {
+          best_10[0][0] = revenue + best_10_trips[i][0];
+          best_10[0][1] = [curr_trip, next_possible_trips[j]];
+          best_10.sort();
+        }
+      }
+    } else {
+      console.log("LESS THAN TEN");
+      // make route arrays for each next possible array
+      for (let k = 0; k < next_possible_trips.length; k++) {
+        let revenue = get_revenue(
+          curr_trip.destination_latitude,
+          curr_trip.destination_longitude,
+          next_possible_trips[k]
+        );
+        best_x.push([best_10_trips[i][0], [curr_trip, next_possible_trips[k]]]);
+      }
+    }
+    if (best_x.length != 0) console.log(best_x);
+    if (best_10.length != 0) console.log(best_10);
+  }
 }
-console.log(preprocess_trips(0));
+console.log(get_best_session(0));
