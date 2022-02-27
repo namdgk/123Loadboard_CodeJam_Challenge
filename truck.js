@@ -81,7 +81,7 @@ function preprocess_trips(trucker_index) {
   // find the best 10 trips from all the possible trips
   let best_10 = [];
   for (let j = 0; j < 10; j++) {
-    best_10.push([Number.MIN_VALUE, null]);
+    best_10.push([-10000, null]);
   }
   for (let i = 0; i < all_possible_trips.length; i++) {
     let revenue = get_revenue(
@@ -92,7 +92,9 @@ function preprocess_trips(trucker_index) {
     if (revenue > best_10[0][0]) {
       best_10[0][0] = revenue;
       best_10[0][1] = all_possible_trips[i];
-      best_10.sort();
+      best_10.sort(function (a, b) {
+        return a[0] - b[0];
+      });
     }
   }
   return best_10;
@@ -274,9 +276,9 @@ function get_best_session(index) {
   let best_10_trips = preprocess_trips(index);
   // [ [rev1, trip1], [rev2, trip2], ... , [rev10, trip10], ]
   for (let i = 0; i < 10; i++) {
-    console.log("--------- TRIP " + i + "--------------------");
+    // console.log("--------- TRIP " + i + "--------------------");
     let curr_trip = best_10_trips[i][1];
-    console.log(curr_trip);
+    // console.log(curr_trip);
     let best_x = [];
     let best_10 = [];
     let travel_time =
@@ -288,46 +290,52 @@ function get_best_session(index) {
         curr_trip.destination_latitude,
         curr_trip.destination_longitude
       );
-    let next_possible_trips = get_next_trips(
-      curr_trip.destination_latitude,
-      curr_trip.destination_longitude,
-      add_hours_to_time(curr_trip.pickup_date_time, travel_time),
-      all_truckers[index].max_destination_time
-    );
-    if (next_possible_trips.length > 10) {
-      console.log("next trips");
-      console.log(next_possible_trips.length);
-      console.log("-----------------------------------");
-      // find the most profitable 10 next trips
-      for (let j = 0; j < 10; j++) {
-        best_10.push([Number.MIN_VALUE, null]);
-      }
-      for (let j = 0; j < next_possible_trips.length; j++) {
-        let revenue = get_revenue(
-          curr_trip.destination_latitude,
-          curr_trip.destination_longitude,
-          next_possible_trips[j]
-        );
-        if (revenue > best_10[0][0]) {
-          best_10[0][0] = revenue + best_10_trips[i][0];
-          best_10[0][1] = [curr_trip, next_possible_trips[j]];
-          best_10.sort();
-        }
-      }
-    } else {
-      console.log("LESS THAN TEN");
-      // make route arrays for each next possible array
-      for (let k = 0; k < next_possible_trips.length; k++) {
-        let revenue = get_revenue(
-          curr_trip.destination_latitude,
-          curr_trip.destination_longitude,
-          next_possible_trips[k]
-        );
-        best_x.push([best_10_trips[i][0], [curr_trip, next_possible_trips[k]]]);
-      }
-    }
-    if (best_x.length != 0) console.log(best_x);
-    if (best_10.length != 0) console.log(best_10);
   }
 }
-console.log(get_best_session(0));
+
+function get_next_best_trip(curr_lat, curr_long, curr_time, max_time) {
+  let next_possible_trips = get_next_trips(
+    curr_trip.destination_latitude,
+    curr_trip.destination_longitude,
+    add_hours_to_time(curr_trip.pickup_date_time, travel_time),
+    all_truckers[index].max_destination_time
+  );
+  if (next_possible_trips.length > 10) {
+    console.log("next trips");
+    console.log(next_possible_trips.length);
+    console.log("-----------------------------------");
+    // find the most profitable 10 next trips
+    for (let j = 0; j < 10; j++) {
+      best_10.push([-100000, null]);
+    }
+    for (let j = 0; j < next_possible_trips.length; j++) {
+      let revenue = get_revenue(
+        curr_trip.destination_latitude,
+        curr_trip.destination_longitude,
+        next_possible_trips[j]
+      );
+      if (revenue > best_10[0][0]) {
+        best_10[0][0] = revenue + best_10_trips[i][0];
+        best_10[0][1] = [curr_trip, next_possible_trips[j]];
+        best_10.sort(function (a, b) {
+          return a[0] - b[0];
+        });
+      }
+    }
+  } else {
+    console.log("LESS THAN TEN");
+    // make route arrays for each next possible array
+    for (let k = 0; k < next_possible_trips.length; k++) {
+      let revenue = get_revenue(
+        curr_trip.destination_latitude,
+        curr_trip.destination_longitude,
+        next_possible_trips[k]
+      );
+      best_x.push([best_10_trips[i][0], [curr_trip, next_possible_trips[k]]]);
+    }
+  }
+  console.log(best_x);
+  console.log(best_10);
+}
+
+get_best_session(0);
