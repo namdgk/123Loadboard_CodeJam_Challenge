@@ -1,5 +1,6 @@
 import moment from "moment";
 import { readFile } from "fs/promises";
+import * as fs from "fs";
 
 const all_trips = JSON.parse(
   await readFile(
@@ -47,7 +48,17 @@ function isBeforeBetter(time1, time2) {
 //All trucks have a fixed speed of 55 mph
 //Fixed fuel cost per gallon is $0.40/mile
 
+//----------------------------------------------------------------------------
+//stuff for adding the final results to the output file
+
 let result = addResult(101, [434307296, 401121]);
+let finalResult = [];
+var data = JSON.stringify(result);
+fs.writeFile("resultsOutput.json", data, (err) => {
+  // Error checking
+  if (err) throw err;
+  console.log("New File Created");
+});
 
 function addResult(inputTripId, loadIds) {
   return {
@@ -55,6 +66,7 @@ function addResult(inputTripId, loadIds) {
     load_ids: loadIds,
   };
 }
+//----------------------------------------------------------------------------
 
 // finds the most profitable 10 trips
 function preprocess_trips(trucker_index) {
