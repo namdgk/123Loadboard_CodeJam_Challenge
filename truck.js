@@ -1,26 +1,29 @@
-import all_trips from "./Assets/123Loadboard_CodeJam_2022_dataset.json"; //the huge json file
-import all_truckers from "./Assets/123Loadboard_CodeJam_2022_input_sample_s300.json"; //7 samples
+import { readFile } from "fs/promises";
 
-console.log("-------------------------------------");
-// console.log(all_trips[0]);
-console.log("-------------------------------------");
+const all_trips = JSON.parse(
+  await readFile(
+    new URL(
+      "./Assets/123Loadboard_CodeJam_2022_input_sample_s300.json",
+      import.meta.url
+    )
+  )
+);
+
+const all_truckers = JSON.parse(
+  await readFile(
+    new URL(
+      "./Assets/123Loadboard_CodeJam_2022_input_sample_s300.json",
+      import.meta.url
+    )
+  )
+);
 
 //All distances are in miles
 //All trucks have a fixed speed of 55 mph
 //Fixed fuel cost per gallon is $0.40/mile
 
 let result = addResult(101, [434307296, 401121]);
-//-------------------------------------
-createResult();
-
-function createResult() {
-  var fs = require("fs");
-  fs.writeFile("test.js", console.log("hi"), function (err) {
-    console.log("Done");
-  });
-}
-//-------------------------------------
-
+console.log(result);
 function addResult(inputTripId, loadIds) {
   return {
     input_trip_id: inputTripId,
