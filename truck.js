@@ -66,7 +66,7 @@ function preprocess_trips(trucker_index) {
     curr_trucker.max_destination_time
   );
   // find the best 10 trips from all the possible trips
-  console.log(all_possible_trips);
+  all_possible_trips.forEach((item) => console.log(item));
 }
 
 function get_next_trips(
@@ -119,13 +119,19 @@ function get_next_trips(
       // check if the trip can end before the trucker's max_destination_time
       if (
         is_before(arrival_to_pickup_time, all_trips[i].pickup_date_time) &&
-        is_before(trip_end_time, end_time)
+        is_before(trip_end_time, trip_end_time)
       ) {
         // add trip to possible_trips array
         possible_trips += all_trips[i];
       }
     }
   }
+  return possible_trips;
+}
+
+// function to compute the finish time of a starting time and the hours elapsed
+function add_hours_to_time(starting_time, hours) {
+  return moment(starting_time).add(hours, "h").format();
 }
 
 // returns true if time1 is before or equal to time2
@@ -134,7 +140,6 @@ function is_before(time1, time2) {
   //"2022-03-04 13:00:00"
   //"2022-03-02T19:00:00.000Z"
   let year1 = parseInt(time1.slice(0, 4));
-  console.log(time1);
   let year2 = parseInt(time2.slice(0, 4));
   // compare year
   if (year1 > year2) {
@@ -189,15 +194,6 @@ function is_before(time1, time2) {
     }
   }
 }
-
-// function test_is_before() {
-//   console.log(is_before("2022-03-04 13:00:00", "2022-03-04 13:00:00")); //true
-//   console.log(is_before("2022-03-05 13:00:00", "2022-03-04 13:00:00")); //false
-//   console.log(is_before("2022-03-04 13:00:01", "2022-03-04 13:00:00")); //false
-//   console.log(is_before("2022-03-04 13:00:01", "2022-03-02T19:00:00.000Z")); //false
-//   console.log(is_before("2022-03-04 13:00:01", "2022-03-04T19:00:00.000Z")); //false
-//   console.log(is_before("2022-03-04 14:00:01", "2022-03-04T19:00:40.000Z")); //true
-// }
 
 // using provided Geodesic distance function to get the distance between coordinates
 function get_distance(lat1, lon1, lat2, lon2) {
