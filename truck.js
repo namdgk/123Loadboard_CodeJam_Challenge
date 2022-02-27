@@ -66,8 +66,17 @@ function preprocess_trips(trucker_index) {
     curr_trucker.max_destination_time
   );
   // find the best 10 trips from all the possible trips
-  all_possible_trips.forEach((item) => console.log(item));
+  let best_10 = [];
+  for (let i = 0; i < all_possible_trips.length; i++) {
+    let revenue = get_revenue(
+      curr_trucker.start_latitude,
+      curr_trucker.start_longitude,
+      all_possible_trips[i]
+    );
+  }
 }
+// TODO: returns the profit-cost of a potential trip
+function get_revenue(starting_lat, starting_long, trip) {}
 
 function get_next_trips(
   origin_latitude,
@@ -122,7 +131,7 @@ function get_next_trips(
         is_before(trip_end_time, trip_end_time)
       ) {
         // add trip to possible_trips array
-        possible_trips += all_trips[i];
+        possible_trips.push(all_trips[i]);
       }
     }
   }
