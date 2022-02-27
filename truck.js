@@ -1,3 +1,4 @@
+import moment from "moment";
 import { readFile } from "fs/promises";
 
 const all_trips = JSON.parse(
@@ -18,12 +19,42 @@ const all_truckers = JSON.parse(
   )
 );
 
+console.log(isBeforeBetter("2024-03-04 13:00:00", "2024-03-04 13:00:00"));
+
+function isBeforeBetter(time1, time2) {
+  let year1 = parseInt(time1.slice(0, 4));
+  let year2 = parseInt(time2.slice(0, 4));
+  let month1 = parseInt(time1.slice(6, 8));
+  let month2 = parseInt(time2.slice(6, 8));
+  let day1 = parseInt(time1.slice(9, 11));
+  let day2 = parseInt(time2.slice(9, 11));
+  let hour1 = parseInt(time1.slice(11, 13));
+  let hour2 = parseInt(time2.slice(11, 13));
+  let min1 = parseInt(time1.slice(14, 16));
+  let min2 = parseInt(time2.slice(14, 16));
+  let sec1 = parseInt(time1.slice(17, 19));
+  let sec2 = parseInt(time2.slice(17, 19));
+  if (
+    year1 == year2 &&
+    month1 == month2 &&
+    day1 == day2 &&
+    hour1 == hour2 &&
+    min1 == min2 &&
+    sec1 == sec2
+  ) {
+    return true;
+  } else {
+    return moment(time1).isBefore(time2, "second");
+  }
+}
+
 //All distances are in miles
 //All trucks have a fixed speed of 55 mph
 //Fixed fuel cost per gallon is $0.40/mile
 
 let result = addResult(101, [434307296, 401121]);
-console.log(result);
+// console.log(result);
+
 function addResult(inputTripId, loadIds) {
   return {
     input_trip_id: inputTripId,
