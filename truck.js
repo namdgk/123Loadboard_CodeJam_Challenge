@@ -60,26 +60,33 @@ const final_input = JSON.parse(
 //----------------------------------------------------------------------------
 //stuff for adding the final results to the output file
 
-let result = addResult(101, [434307296, 401121]);
 let finalResult = [];
-var data = JSON.stringify(result);
+addResult();
+// console.log("------------------------------------------------------");
+// console.log(final_input[1].input_trip_id);
+// console.log(get_best_session(1));
+// console.log("------------------------------------------------------");
+
+var data = JSON.stringify(finalResult);
 fs.writeFile("output_s400.json", data, (err) => {
   // Error checking
   if (err) throw err;
   console.log("New File Created");
 });
 
-function addResult(inputTripId, loadIds) {
-  return {
-    input_trip_id: inputTripId,
-    load_ids: loadIds,
-  };
+function addResult() {
+  for (let i = 0; i < final_input.length; i++) {
+    finalResult.push({
+      input_trip_id: final_input[i].input_trip_id,
+      load_ids: get_best_session(i),
+    });
+  }
 }
 //----------------------------------------------------------------------------
 
 // finds the most profitable 10 trips
 function preprocess_trips(trucker_index) {
-  let curr_trucker = all_truckers[trucker_index];
+  let curr_trucker = final_input[trucker_index];
   let all_possible_trips = get_next_trips(
     curr_trucker.start_latitude,
     curr_trucker.start_longitude,
@@ -155,23 +162,21 @@ function get_next_trips(
     ) {
       // travel time is in hours
       let travel_to_pickup_time =
-        1609.34 * // miles to meters conversion
-        55 * // travel speed in miles
         get_distance(
           origin_latitude,
           origin_longitude,
           all_trips[i].origin_latitude,
           all_trips[i].origin_longitude
-        );
+        ) /
+        (1609.34 * 55);
       let trip_travel_time =
-        1609.34 * // miles to meters conversion
-        55 * // travel speed in miles
         get_distance(
           all_trips[i].origin_latitude,
           all_trips[i].origin_longitude,
           all_trips[i].destination_latitude,
           all_trips[i].destination_latitude
-        );
+        ) /
+        (1609.34 * 55);
       let trip_end_time = add_hours_to_time(
         all_trips[i].pickup_date_time,
         trip_travel_time
@@ -291,19 +296,18 @@ function get_best_session(index) {
     let curr_trip = best_10_trips[i][1];
     // console.log(curr_trip);
     let travel_time =
-      1609.34 *
-      55 *
       get_distance(
         curr_trip.origin_latitude,
         curr_trip.origin_longitude,
         curr_trip.destination_latitude,
         curr_trip.destination_longitude
-      );
+      ) /
+      (1609.34 * 55);
     let next_trip = get_next_best_trip(
       curr_trip,
       best_10_trips[i][0],
       add_hours_to_time(curr_trip.pickup_date_time, travel_time),
-      all_truckers[index].max_destination_time
+      final_input[index].max_destination_time
     );
     all_routes.push(next_trip);
   }

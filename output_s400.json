@@ -1,1 +1,12 @@
-{"input_trip_id":101,"load_ids":[434307296,401121]}
+[
+  { "input_trip_id": 401, "load_ids": [434772897] },
+  { "input_trip_id": 402, "load_ids": [434739212] },
+  { "input_trip_id": 403, "load_ids": [434065700] },
+  { "input_trip_id": 404, "load_ids": [435854529, 436017585] },
+  { "input_trip_id": 405, "load_ids": [434065700] },
+  { "input_trip_id": 406, "load_ids": [435389436] },
+  { "input_trip_id": 407, "load_ids": [434450978] },
+  { "input_trip_id": 408, "load_ids": [434814235] },
+  { "input_trip_id": 409, "load_ids": [435154829] },
+  { "input_trip_id": 410, "load_ids": [434746856] }
+]
