@@ -65,6 +65,7 @@ function preprocess_trips(trucker_index) {
     curr_trucker.start_time,
     curr_trucker.max_destination_time
   );
+  // console.log(all_possible_trips);
   // find the best 10 trips from all the possible trips
   let best_10 = [];
   for (let j = 0; j < 10; j++) {
@@ -86,7 +87,29 @@ function preprocess_trips(trucker_index) {
 }
 
 // TODO: returns the profit-cost of a potential trip
-function get_revenue(starting_lat, starting_long, trip) {}
+//Fixed fuel cost per gallon is $0.40/mile
+function get_revenue(starting_lat, starting_long, trip) {
+  //Cost to go from the starting point to the origin
+  distance1 = get_distance(
+    starting_lat,
+    starting_long,
+    trip.origin_latitude,
+    trip.origin_longitude
+  );
+  cost1 = distance1 * 0.4;
+  //Cost to go from the origin to the destination
+  distance2 = get_distance(
+    trip.origin_latitude,
+    trip.origin_longitude,
+    trip.destination_latitude,
+    trip.destination_longitude
+  );
+  cost1 = distance2 * 0.4;
+  //Amount made from the trip - the two costs above
+  totalCost = cost1 + cost2;
+  revenue = trip.amount - totalCost;
+  return revenue;
+}
 
 function get_next_trips(
   origin_latitude,
@@ -227,7 +250,7 @@ function get_distance(lat1, lon1, lat2, lon2) {
     Math.cos(φ1) * Math.cos(φ2) * Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 
-  const d = R * c; // in metres
+  return R * c; // in metres
 }
 
 // takes in an index of the request array, returns the best trip ID's within constrains
