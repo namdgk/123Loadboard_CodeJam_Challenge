@@ -67,14 +67,24 @@ function preprocess_trips(trucker_index) {
   );
   // find the best 10 trips from all the possible trips
   let best_10 = [];
+  for (let j = 0; j < 10; j++) {
+    best_10.push(Number.MIN_VALUE);
+  }
+
   for (let i = 0; i < all_possible_trips.length; i++) {
     let revenue = get_revenue(
       curr_trucker.start_latitude,
       curr_trucker.start_longitude,
       all_possible_trips[i]
     );
+    if (revenue > best_10[0]) {
+      best_10[0] = min_rev;
+      best_10.sort();
+    }
   }
+  return best_10;
 }
+
 // TODO: returns the profit-cost of a potential trip
 function get_revenue(starting_lat, starting_long, trip) {}
 
@@ -220,4 +230,8 @@ function get_distance(lat1, lon1, lat2, lon2) {
   const d = R * c; // in metres
 }
 
-preprocess_trips(0);
+// takes in an index of the request array, returns the best trip ID's within constrains
+function get_best_session(index) {
+  // get best 10 trips as a starting point
+  let best_10_trips = preprocess_trips(index);
+}
