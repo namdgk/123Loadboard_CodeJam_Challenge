@@ -2,10 +2,7 @@ import { readFile } from "fs/promises";
 
 const all_trips = JSON.parse(
   await readFile(
-    new URL(
-      "./Assets/123Loadboard_CodeJam_2022_input_sample_s300.json",
-      import.meta.url
-    )
+    new URL("./Assets/123Loadboard_CodeJam_2022_dataset.json", import.meta.url)
   )
 );
 
@@ -23,12 +20,24 @@ const all_truckers = JSON.parse(
 //Fixed fuel cost per gallon is $0.40/mile
 
 let result = addResult(101, [434307296, 401121]);
-console.log(result);
 function addResult(inputTripId, loadIds) {
   return {
     input_trip_id: inputTripId,
     load_ids: loadIds,
   };
+}
+
+// finds the most profitable 10 trips
+function preprocess_trips(trucker_index) {
+  let curr_trucker = all_truckers[trucker_index];
+  let all_possible_trips = get_next_trips(
+    curr_trucker.start_latitude,
+    curr_trucker.start_longitude,
+    curr_trucker.start_time,
+    curr_trucker.max_destination_time
+  );
+  // find the best 10 trips from all the possible trips
+  console.log(all_possible_trips);
 }
 
 function get_next_trips(
@@ -39,7 +48,6 @@ function get_next_trips(
 ) {
   // possible trips to be returned
   var possible_trips = [];
-
   // variables used:
   // current_time: trucker's time and location when requesting posiible trips
   // trucker_end_time: the max time trucker can be on the road
@@ -71,7 +79,10 @@ function get_next_trips(
           all_trips[i].destination_latitude,
           all_trips[i].destination_latitude
         );
-      let trip_end_time = add_hours_to_time(pickup_date_time, trip_travel_time);
+      let trip_end_time = add_hours_to_time(
+        all_trips[i].pickup_date_time,
+        trip_travel_time
+      );
       let arrival_to_pickup_time = add_hours_to_time(
         current_time,
         travel_to_pickup_time
@@ -87,11 +98,12 @@ function get_next_trips(
     }
   }
 }
-// TODO: function to compute the finish time of a starting time and the hours elapsed
+
+// function to compute the finish time of a starting time and the hours elapsed
 function add_hours_to_time(starting_time, hours) {
   var moment = require("moment"); // require
   let a = starting_time.add(hours, "h");
-  console.log(a);
+  return a;
 }
 
 // returns true if time1 is before or equal to time2
@@ -100,6 +112,7 @@ function is_before(time1, time2) {
   //"2022-03-04 13:00:00"
   //"2022-03-02T19:00:00.000Z"
   let year1 = parseInt(time1.slice(0, 4));
+  console.log(time1);
   let year2 = parseInt(time2.slice(0, 4));
   // compare year
   if (year1 > year2) {
@@ -154,6 +167,7 @@ function is_before(time1, time2) {
     }
   }
 }
+
 // function test_is_before() {
 //   console.log(is_before("2022-03-04 13:00:00", "2022-03-04 13:00:00")); //true
 //   console.log(is_before("2022-03-05 13:00:00", "2022-03-04 13:00:00")); //false
@@ -178,3 +192,5 @@ function get_distance(lat1, lon1, lat2, lon2) {
 
   const d = R * c; // in metres
 }
+
+preprocess_trips(0);
