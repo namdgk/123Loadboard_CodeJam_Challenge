@@ -17,6 +17,15 @@ const all_truckers = JSON.parse(
   )
 );
 
+const final_input = JSON.parse(
+  await readFile(
+    new URL(
+      "./Assets/123Loadboard_Codejam_2022_input_final_s400.json",
+      import.meta.url
+    )
+  )
+);
+
 // function is_before(time1, time2) {
 //   let year1 = parseInt(time1.slice(0, 4));
 //   let year2 = parseInt(time2.slice(0, 4));
@@ -54,7 +63,7 @@ const all_truckers = JSON.parse(
 let result = addResult(101, [434307296, 401121]);
 let finalResult = [];
 var data = JSON.stringify(result);
-fs.writeFile("resultsOutput.json", data, (err) => {
+fs.writeFile("output_s400.json", data, (err) => {
   // Error checking
   if (err) throw err;
   console.log("New File Created");
