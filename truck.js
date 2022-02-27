@@ -79,7 +79,7 @@ function preprocess_trips(trucker_index) {
       all_possible_trips[i]
     );
     if (revenue > best_10[0]) {
-      best_10[0] = min_rev;
+      best_10[0] = revenue;
       best_10.sort();
     }
   }
@@ -89,25 +89,26 @@ function preprocess_trips(trucker_index) {
 // TODO: returns the profit-cost of a potential trip
 //Fixed fuel cost per gallon is $0.40/mile
 function get_revenue(starting_lat, starting_long, trip) {
-  //Cost to go from the starting point to the origin
-  distance1 = get_distance(
+  // cost to go from the starting point to the origin
+  let distance1 = get_distance(
     starting_lat,
     starting_long,
     trip.origin_latitude,
     trip.origin_longitude
   );
-  cost1 = distance1 * 0.4;
-  //Cost to go from the origin to the destination
-  distance2 = get_distance(
+  let cost1 = distance1 * (0.4 / 1609.34);
+  // cost to go from the origin to the destination
+  let distance2 = get_distance(
     trip.origin_latitude,
     trip.origin_longitude,
     trip.destination_latitude,
     trip.destination_longitude
   );
-  cost1 = distance2 * 0.4;
+  let cost2 = distance2 * (0.4 / 1609.34);
   //Amount made from the trip - the two costs above
-  totalCost = cost1 + cost2;
-  revenue = trip.amount - totalCost;
+  let totalCost = cost1 + cost2;
+  let revenue = trip.amount - totalCost;
+  console.log(revenue);
   return revenue;
 }
 
@@ -258,3 +259,4 @@ function get_best_session(index) {
   // get best 10 trips as a starting point
   let best_10_trips = preprocess_trips(index);
 }
+console.log(preprocess_trips(0));
