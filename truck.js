@@ -19,7 +19,9 @@ const all_truckers = JSON.parse(
   )
 );
 
-console.log(isBeforeBetter("2024-03-04 13:00:00", "2024-03-04 13:00:00"));
+//testing
+// add_hours_to_time("2024-03-04 12:00:00", 1);
+// console.log(isBeforeBetter("2024-03-04 13:00:00", "2024-03-04 13:00:00"));
 
 function isBeforeBetter(time1, time2) {
   let year1 = parseInt(time1.slice(0, 4));
@@ -120,9 +122,7 @@ function get_next_trips(
 }
 // TODO: function to compute the finish time of a starting time and the hours elapsed
 function add_hours_to_time(starting_time, hours) {
-  var moment = require("moment"); // require
-  let a = starting_time.add(hours, "h");
-  console.log(a);
+  return moment(starting_time).add(hours, "h").format();
 }
 
 // returns true if time1 is before or equal to time2
